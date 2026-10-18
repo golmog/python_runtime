@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="mb-3">
+  <h4>Python Runtime <small class="text-muted">0.1.0</small></h4>
+  <p class="text-muted">FF와 독립된 Python 환경을 플러그인별로 사용합니다.</p>
+</div>
+<div id="runtime_message" class="alert alert-info" role="status">환경 정보를 불러오는 중입니다.</div>
+{% if page == 'setting' %}
+<form id="runtime_settings">
+  <div class="form-group"><label for="runtime_python">기본 Python</label>
+    <select class="form-control" id="runtime_python" name="runtime_python" data-selected="{{ arg.runtime_python }}"></select>
+    <small class="form-text text-muted">새 가상 환경에 사용할 기본 버전입니다. 기존 환경은 생성 당시 버전을 유지합니다.</small></div>
+  <div class="form-group"><label for="runtime_env_root">가상 환경 기본 저장 경로</label>
+    <input class="form-control" id="runtime_env_root" name="runtime_env_root" value="{{ arg.runtime_env_root }}">
+    <small class="form-text text-muted">컨테이너 내부 절대 경로. 하위에 플러그인 이름/환경 이름으로 생성합니다. 경로 변경은 새 환경부터 적용됩니다.</small></div>
+  <div class="form-group"><label for="runtime_timeout">작업 제한 시간 (초)</label>
+    <input class="form-control" type="number" min="1" max="86400" id="runtime_timeout" name="runtime_timeout" value="{{ arg.runtime_timeout }}"></div>
+  <div class="form-group"><label for="runtime_install_timeout">환경 생성·패키지 설치 제한 시간 (초)</label>
+    <input class="form-control" type="number" min="1" max="86400" id="runtime_install_timeout" name="runtime_install_timeout" value="{{ arg.runtime_install_timeout }}"></div>
+  <details class="mb-3"><summary>고급 설정</summary>
+    <label for="runtime_uv" class="mt-2">uv 실행 파일</label>
+    <input class="form-control" id="runtime_uv" name="runtime_uv" value="{{ arg.runtime_uv }}">
+  </details>
+  <button type="submit" class="btn btn-primary">설정 저장</button>
+</form>
+<hr><h5>Python 추가 등록</h5>
+<p class="text-muted">별도로 설치한 Python 실행 파일을 등록합니다. 기본 Python을 교체하거나 자동 업데이트하지 않습니다.</p>
+<form id="register_form" class="input-group mb-3">
+  <input id="register_path" class="form-control" placeholder="/opt/python/bin/python3.14" aria-label="추가 Python 실행 파일 경로" required>
+  <div class="input-group-append"><button class="btn btn-outline-primary">등록</button></div>
+</form>
+<h5>등록된 Python</h5><div id="interpreters"></div>
+{% elif page == 'environments' %}
+<h5>가상 환경 생성</h5>
+<form id="create_form">
+  <div class="form-row">
+    <div class="form-group col-md-4"><label for="owner">플러그인 이름</label><input id="owner" class="form-control" placeholder="예: feeder" pattern="[A-Za-z0-9][A-Za-z0-9_.-]{0,63}" required></div>
+    <div class="form-group col-md-4"><label for="env_name">환경 이름</label><input id="env_name" class="form-control" value="default" pattern="[A-Za-z0-9][A-Za-z0-9_.-]{0,63}" required></div>
+    <div class="form-group col-md-4"><label for="env_python">Python</label><select id="env_python" class="form-control" data-selected="{{ arg.runtime_python }}"></select></div>
+  </div>
+  <div class="form-group"><label for="env_path">환경별 경로 (선택)</label><input id="env_path" class="form-control" placeholder="비우면 기본 저장 경로 사용">
+    <small class="form-text text-muted">새로 만들 디렉터리의 절대 경로입니다. 기존 디렉터리는 덮어쓰지 않습니다.</small></div>
+  <button class="btn btn-primary" id="create_button">환경 생성</button>
+  <button type="button" class="btn btn-outline-secondary" id="refresh">새로고침</button>
+</form>
+<hr><h5>가상 환경 목록</h5>
+<div class="table-responsive"><table class="table table-sm"><thead><tr><th>플러그인 / 환경</th><th>Python</th><th>경로</th><th>상태</th><th>관리</th></tr></thead><tbody id="environments"></tbody></table></div>
+<hr><h5>패키지 설치</h5>
+<form id="install_form">
+  <div class="form-group"><label for="install_target">설치할 가상 환경</label><select id="install_target" class="form-control" required></select></div>
+  <div class="form-group"><label for="install_packages">패키지 목록</label>
+    <textarea id="install_packages" class="form-control" rows="4" placeholder="requests==2.32.5&#10;pydantic&gt;=2,&lt;3" required></textarea>
+    <small class="form-text text-muted">한 줄에 하나씩 입력하세요. 패키지명, 버전 조건, extras를 사용할 수 있습니다. 지정한 버전이 이미 설치되어 있으면 유지합니다. pip 옵션은 입력하지 않습니다.</small></div>
+  <button id="install_button" class="btn btn-primary">선택한 환경에 설치</button>
+  <small class="form-text text-muted">설치는 백그라운드에서 진행합니다. FF 기본 환경과 기본 Python에는 설치하지 않습니다.</small>
+</form>
+{% endif %}
+{% if page == 'environments' %}
+<hr><div class="d-flex align-items-center mb-2"><h5 class="mb-0 mr-3">설치 패키지</h5>
+<select id="package_target" class="form-control w-auto" aria-label="패키지 조회 환경"></select>
+<button class="btn btn-outline-secondary ml-2" id="load_packages">조회</button></div>
+<div id="package_info" class="text-muted mb-2">조회할 환경을 선택하세요.</div>
+<input id="package_filter" class="form-control mb-2" placeholder="패키지 이름 검색" aria-label="패키지 이름 검색">
+<div style="max-height:420px;overflow:auto"><table class="table table-sm table-striped"><thead><tr><th>패키지</th><th>버전</th></tr></thead><tbody id="packages"></tbody></table></div>
+{% endif %}
+<script src="{{ url_for('.static', filename='runtime.js') }}"></script>
+{% endblock %}

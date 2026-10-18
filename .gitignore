@@ -1,0 +1,57 @@
+# Local Python installations, environments and download caches
+.tools/
+.runtime/
+.cache/
+/.venv/
+/venv/
+/venvs/
+/envs/
+
+# Machine-specific installation record and credentials
+/INSTALL.txt
+.env
+.env.*
+!.env.example
+!.env.sample
+
+# Local state (when the runtime state directory is placed inside the plugin)
+/data/
+/registry.json
+/registry.lock
+/env-*.lock
+
+# Python bytecode and build artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+build/
+dist/
+*.egg-info/
+
+# Logs and editor files
+*.log
+tmp/
+.vscode/
+.idea/
+
+# Agent-generated local tests, reports and temporary artifacts (not for distribution)
+/tests/
+/test-results/
+/playwright-report/
+/agent_tmp/
+/codex_tmp/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+*.tmp
+*.bak
+*.orig
+*.rej
+*.swp
+*.swo
+*~
+.DS_Store

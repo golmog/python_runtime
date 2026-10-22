@@ -12,7 +12,7 @@
     <small class="form-text text-muted">새 가상 환경에 사용할 기본 버전입니다. 기존 환경은 생성 당시 버전을 유지합니다.</small></div>
   <div class="form-group"><label for="runtime_env_root">가상 환경 기본 저장 경로</label>
     <input class="form-control" id="runtime_env_root" name="runtime_env_root" value="{{ arg.runtime_env_root }}">
-    <small class="form-text text-muted">컨테이너 내부 절대 경로. 하위에 플러그인 이름/환경 이름으로 생성합니다. 경로 변경은 새 환경부터 적용됩니다.</small></div>
+    <small class="form-text text-muted">컨테이너 내부 절대 경로. 하위에 그룹 이름/환경 이름으로 생성합니다. 경로 변경은 새 환경부터 적용됩니다.</small></div>
   <div class="form-group"><label for="runtime_timeout">작업 제한 시간 (초)</label>
     <input class="form-control" type="number" min="1" max="86400" id="runtime_timeout" name="runtime_timeout" value="{{ arg.runtime_timeout }}"></div>
   <div class="form-group"><label for="runtime_install_timeout">환경 생성·패키지 설치 제한 시간 (초)</label>
@@ -34,7 +34,8 @@
 <h5>가상 환경 생성</h5>
 <form id="create_form">
   <div class="form-row">
-    <div class="form-group col-md-4"><label for="owner">플러그인 이름</label><input id="owner" class="form-control" placeholder="예: feeder" pattern="[A-Za-z0-9][A-Za-z0-9_.-]{0,63}" required></div>
+    <div class="form-group col-md-4"><label for="owner">그룹 이름 (플러그인 또는 공용)</label><input id="owner" class="form-control" placeholder="예: default" pattern="[A-Za-z0-9][A-Za-z0-9_.-]{0,63}" required>
+      <small class="form-text text-muted">공용 환경은 default, 전용 환경은 플러그인 이름을 사용할 수 있습니다.</small></div>
     <div class="form-group col-md-4"><label for="env_name">환경 이름</label><input id="env_name" class="form-control" value="default" pattern="[A-Za-z0-9][A-Za-z0-9_.-]{0,63}" required></div>
     <div class="form-group col-md-4"><label for="env_python">Python</label><select id="env_python" class="form-control" data-selected="{{ arg.runtime_python }}"></select></div>
   </div>
@@ -44,7 +45,7 @@
   <button type="button" class="btn btn-outline-secondary" id="refresh">새로고침</button>
 </form>
 <hr><h5>가상 환경 목록</h5>
-<div class="table-responsive"><table class="table table-sm"><thead><tr><th>플러그인 / 환경</th><th>Python</th><th>경로</th><th>상태</th><th>관리</th></tr></thead><tbody id="environments"></tbody></table></div>
+<div class="table-responsive"><table class="table table-sm"><thead><tr><th>그룹 / 환경</th><th>Python</th><th>경로</th><th>상태</th><th>관리</th></tr></thead><tbody id="environments"></tbody></table></div>
 <hr><h5>패키지 설치</h5>
 <form id="install_form">
   <div class="form-group"><label for="install_target">설치할 가상 환경</label><select id="install_target" class="form-control" required></select></div>
